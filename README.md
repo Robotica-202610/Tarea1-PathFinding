@@ -1,5 +1,9 @@
 # Tarea 1 Robótica Móvil
 
+Adrian Velasquez
+202222737
+a.velasquezs@uniandes.edu.co
+
 ## Instrucciones de ejecución
 
 > Nota: Correr `build.py` creará un archivo ejecutable para su dispositivo en el directorio `dist`.
