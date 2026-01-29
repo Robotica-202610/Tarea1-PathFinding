@@ -119,6 +119,7 @@ class SimpleGUI:
         """
         Plot a DataFrame board on the given axes and draw the Tk canvas.
         Values expected: -1 obstacles, 0 empty, 1 initial, 2 final, 3 path.
+        Each cell is rendered as a unit square so every square represents a position.
         """
         ax.clear()
         if board_df is None:
@@ -128,14 +129,25 @@ class SimpleGUI:
         arr = board_df.values.astype(int)
         # shift by +1 to map -1..3 -> 0..4 for ListedColormap
         display_arr = arr + 1
-        ax.imshow(display_arr, cmap=self._cmap, vmin=0, vmax=4, interpolation='nearest')
+        nrows, ncols = display_arr.shape
+
+        # show each cell as a unit square: extent sets the image to span [0..ncols] x [0..nrows]
+        # use origin='upper' so (0,0) corresponds to top-left like array indices
+        ax.imshow(display_arr, cmap=self._cmap, vmin=0, vmax=4, interpolation='nearest',
+                  extent=(0, ncols, nrows, 0), aspect='equal', origin='upper')
+
         ax.set_title(title)
-        ax.set_xticks(range(board_df.shape[1]))
-        ax.set_yticks(range(board_df.shape[0]))
-        # put grid lines between cells
+
+        # major ticks at cell centers (hidden labels), minor ticks at integer boundaries for grid lines
+        ax.set_xticks([i + 0.5 for i in range(ncols)])
+        ax.set_yticks([i + 0.5 for i in range(nrows)])
         ax.set_xticklabels([])
         ax.set_yticklabels([])
-        ax.grid(which='both', color='black', linestyle='-', linewidth=1)
+
+        ax.set_xticks(list(range(ncols + 1)), minor=True)
+        ax.set_yticks(list(range(nrows + 1)), minor=True)
+        ax.grid(which='minor', color='black', linestyle='-', linewidth=1)
+
         canvas.draw_idle()
 
     def _info_popup(self, info):
