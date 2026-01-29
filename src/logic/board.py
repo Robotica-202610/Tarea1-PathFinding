@@ -61,7 +61,7 @@ class Board:
                 rand_x = np.random.randint(0, self.R)
                 rand_y = np.random.randint(0, self.C)
             temp_board[rand_x, rand_y] = -1  # Marking occupied position
-            temp_positions.append(rand_x)
+            temp_positions.append( (rand_x, rand_y ) ) # Track positions occupied
         self.board = pd.DataFrame(temp_board).astype(int) # Turn into DataFrame for better visualization
         self._build_graph()
 
@@ -70,7 +70,7 @@ class Board:
         Prints the Board's attributes.
         :return: None
         """
-        print(f"Board Size: {self.R} x {self.C}")
+        print(f"\nBoard Size: {self.R} x {self.C}")
         print(f"Initial Position: ({self.ix}, {self.iy})")
         print(f"Final Position: ({self.fx}, {self.fy})")
         print(f"Number of Obstacles: {self.n}")
