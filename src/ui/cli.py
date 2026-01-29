@@ -1,26 +1,23 @@
 import sys
 import re
 
+import ui.utils as utils
 from logic.board import Board
 from logic.bfs import bfs
-
-
-def clean_string(text):
-    return re.sub(r'[^0-9,]', '', text)
 
 def run():
     try:
         rc = input("\n>> Enter number of rows and columns as (R,C): ")
-        r, c = map(int, clean_string(rc).split(","))
+        r, c = map(int, utils.clean_string(rc).split(","))
 
         ixy = input(">> Enter initial position as (x,y): ")
-        ix, iy = map(int, clean_string(ixy).split(","))
+        ix, iy = map(int, utils.clean_string(ixy).split(","))
         if ix < 0 or ix >= r or iy < 0 or iy >= c:
             print("\n>> [ERROR] Initial position out of bounds.\n")
             return
 
         fxy = input(">> Enter final position as (p,q): ")
-        fx, fy = map(int, clean_string(fxy).split(","))
+        fx, fy = map(int, utils.clean_string(fxy).split(","))
         if fx < 0 or fx >= r or fy < 0 or fy >= c:
             print("\n>> [ERROR] Final position out of bounds.\n")
             return
