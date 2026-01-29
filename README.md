@@ -1,8 +1,8 @@
 # Tarea 1 Robótica Móvil
 
-Adrian Velasquez
-202222737
-a.velasquezs@uniandes.edu.co
+Adrian Velasquez  
+202222737  
+a.velasquezs@uniandes.edu.co  
 
 ## Instrucciones de ejecución
 
