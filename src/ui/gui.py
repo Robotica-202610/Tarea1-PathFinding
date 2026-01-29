@@ -19,7 +19,7 @@ class SimpleGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("PathFinder GUI")
-        self.root.geometry("900x700")
+        self.root.geometry("900x600")
         self.root.resizable(False, False)
         self._cmap = ListedColormap(['black', 'lightgray', 'green', 'red', 'orange'])
         self.vcmd = (root.register(validate_int_only), '%P')
@@ -189,7 +189,7 @@ class SimpleGUI:
             # still update initial board display
             self._plot_board_on_axes(self.initial_ax, self.initial_canvas, self.board.board, "Initial Board")
             # clear final display
-            self._clear_ax(self.final_ax, "Final Board (no path)")
+            self._plot_board_on_axes(self.final_ax, self.final_canvas, self.board.board, "Final Board (no path)")
             return
         print(f"\nShortest path: {self.path}")
 
