@@ -1,8 +1,10 @@
-import re
 import tkinter as tk
 from dataclasses import field
 
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.colors import ListedColormap
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import ui.utils as utils
 from logic.board import Board
@@ -19,14 +21,21 @@ class SimpleGUI:
         self.root.title("PathFinder GUI")
         self.root.geometry("900x700")
         self.root.resizable(False, False)
+        self._cmap = ListedColormap(['black', 'lightgray', 'green', 'red', 'orange'])
         self.vcmd = (root.register(validate_int_only), '%P')
 
         self._fields()
         self._buttons()
 
+        # Bottom area for two matplotlib canvases
+        self._create_display_area()
+
         self.board = None
         self.final = None
         self.path = None
+
+        # prepare colormap: map values (-1,0,1,2,3) -> indices (0..4)
+        # colors: obstacle (black), empty (lightgray), initial (green), final (red), path (orange)
 
 
     def _fields(self):
@@ -69,6 +78,66 @@ class SimpleGUI:
         run_button.grid(row=3, column=2)
         quit_button.grid(row=3, column=3)
 
+    def _create_display_area(self):
+        """
+        Creates the bottom area with two matplotlib canvases: initial and final.
+        """
+        # parent frame for both canvases
+        display_frame = tk.Frame(self.root)
+        display_frame.grid(row=4, column=0, columnspan=6, sticky='nsew', padx=5, pady=5)
+        # left and right subframes
+        left_frame = tk.LabelFrame(display_frame, text="Initial Board")
+        right_frame = tk.LabelFrame(display_frame, text="Final Board (with path)")
+        left_frame.pack(side='left', fill='both', expand=True, padx=5, pady=5)
+        right_frame.pack(side='right', fill='both', expand=True, padx=5, pady=5)
+
+        # create figure/canvas for initial
+        self.initial_fig = Figure(figsize=(4, 4), dpi=100)
+        self.initial_ax = self.initial_fig.add_subplot(111)
+        self.initial_canvas = FigureCanvasTkAgg(self.initial_fig, master=left_frame)
+        self.initial_canvas.get_tk_widget().pack(fill='both', expand=True)
+
+        # create figure/canvas for final
+        self.final_fig = Figure(figsize=(4, 4), dpi=100)
+        self.final_ax = self.final_fig.add_subplot(111)
+        self.final_canvas = FigureCanvasTkAgg(self.final_fig, master=right_frame)
+        self.final_canvas.get_tk_widget().pack(fill='both', expand=True)
+
+        # initialize empty displays
+        self._clear_ax(self.initial_ax, "Initial Board")
+        self._clear_ax(self.final_ax, "Final Board")
+
+    def _clear_ax(self, ax, title):
+        ax.clear()
+        ax.set_title(title)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.imshow([[0]], cmap=self._cmap, vmin=0, vmax=4, interpolation='nearest')
+        ax.figure.canvas.draw_idle()
+
+    def _plot_board_on_axes(self, ax, canvas, board_df, title):
+        """
+        Plot a DataFrame board on the given axes and draw the Tk canvas.
+        Values expected: -1 obstacles, 0 empty, 1 initial, 2 final, 3 path.
+        """
+        ax.clear()
+        if board_df is None:
+            ax.set_title(title)
+            ax.figure.canvas.draw_idle()
+            return
+        arr = board_df.values.astype(int)
+        # shift by +1 to map -1..3 -> 0..4 for ListedColormap
+        display_arr = arr + 1
+        ax.imshow(display_arr, cmap=self._cmap, vmin=0, vmax=4, interpolation='nearest')
+        ax.set_title(title)
+        ax.set_xticks(range(board_df.shape[1]))
+        ax.set_yticks(range(board_df.shape[0]))
+        # put grid lines between cells
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        ax.grid(which='both', color='black', linestyle='-', linewidth=1)
+        canvas.draw_idle()
+
     def _info_popup(self, info):
         """
         Displays information in a message box.
@@ -101,31 +170,23 @@ class SimpleGUI:
 
         self.board.info()
 
-        self.path = bfs( self.board.graph, ( self.board.ix, self.board.iy), ( self.board.fx, self.board.fy))
+        self.path = bfs(self.board.graph, (self.board.ix, self.board.iy), (self.board.fx, self.board.fy))
 
         if len(self.path) == 0:
             print("\n>> [ERROR] No path found from initial to final position.\n")
+            # still update initial board display
+            self._plot_board_on_axes(self.initial_ax, self.initial_canvas, self.board.board, "Initial Board")
+            # clear final display
+            self._clear_ax(self.final_ax, "Final Board (no path)")
             return
         print(f"\nShortest path: {self.path}")
 
         print("\nBoard with Path:\n")
         self.final = self.board.draw_path(self.path)
 
-
-    def _display_board_in_GUI(self, board, title="Board"):
-        """
-        Displays the board in a matplotlib window.
-        :param board: The board to display.
-        :param title: The title of the window.
-        :return: None
-        """
-        plt.figure(title)
-        plt.imshow(board.grid, cmap='Greys', interpolation='nearest')
-        plt.title(title)
-        plt.xticks(range(board.c))
-        plt.yticks(range(board.r))
-        plt.grid(which='both', color='black', linestyle='-', linewidth=2)
-        plt.show()
+        # update both canvases
+        self._plot_board_on_axes(self.initial_ax, self.initial_canvas, self.board.board, "Initial Board")
+        self._plot_board_on_axes(self.final_ax, self.final_canvas, self.final.board, "Final Board (with path)")
 
     def _validate_inputs(self):
         """
