@@ -46,13 +46,19 @@ def run():
         final = b.draw_path(path) # Draw the path on the Board
         final.display()  # Final state of the Board with path
 
+        m = input("\n>> Close program? (y/n): ")
+        if m.lower() == 'y':
+            return False
+        print("\n>> [INFO] Restarting...")
+        return True
+
     except KeyboardInterrupt:
         print("\n\nExiting program...\n")
         sys.exit(0)
 
     except Exception as e:
         print(f"[ERROR] -> {e}")
-        return
+        return False
 
 def start_cli():
     """
@@ -62,8 +68,9 @@ def start_cli():
     print("\n=================================================")
     print("\nWelcome to the CLI to find a path for a robot")
     print("Press Ctrl+C to exit at any time")
-    while True:
-        run()
+    t = True
+    while t:
+        t = run()
 
 if __name__ == "__main__":
     start_cli()

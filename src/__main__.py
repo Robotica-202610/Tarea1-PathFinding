@@ -9,17 +9,23 @@ def launch():
     Returns: None
     """
     try:
-        while True:
-            print("\n1) Run CLI\n2) Run GUI")
-            choice = input(">> Enter your choice: ")
-            if choice == '1':
-                start_cli()
-                sys.exit(0)
-            elif choice == '2':
-                start_gui()
-                sys.exit(0)
-            else:
-                print("\n>> [ERROR] Invalid choice. Please enter 1 or 2.\n")
+        print("\n1) Run CLI\n2) Run GUI")
+        choice = input(">> Enter your choice: ")
+        if choice == '1':
+            start_cli()
+
+        elif choice == '2':
+            start_gui()
+            sys.exit(0)
+
+        else:
+            print("\n>> [ERROR] Invalid choice. Please enter 1 or 2.\n")
+
+        m = input("\n>> Program closed. Return to main menu? (y/n): ")
+        if m.lower() == 'y':
+            return False
+        return True
+
 
     except KeyboardInterrupt:
         print("\n\nExiting program...\n")
@@ -35,4 +41,5 @@ if __name__ == "__main__":
     run = True
     while run:
         run = launch()
+    print("\n>> [INFO] Exiting...")
 
