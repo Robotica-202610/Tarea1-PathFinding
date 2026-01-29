@@ -23,11 +23,11 @@ a.velasquezs@uniandes.edu.co
 
    - Windows:
       ```powershell
-      pip install numpy pandas 
+      pip install numpy pandas matplotlib 
        ```
    - MacOS/Linux
       ```zsh
-      pip3 install numpy pandas 
+      pip3 install numpy pandas matplotlib
        ```
 
 2. Correr el archivo `__main__.py` ubicado en la carpeta `src` para iniciar la simulación.
